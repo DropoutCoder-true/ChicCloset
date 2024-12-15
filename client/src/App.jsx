@@ -22,7 +22,7 @@ function App() {
     <div className="app">
       <BrowserRouter>
         <Navbar />
-        <ScrollToTop />
+        <ScrollToTop />j
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/item/:itemId" element={<ItemDetails />} />
