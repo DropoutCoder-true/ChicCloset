@@ -28,14 +28,12 @@ const ShoppingList = () => {
     getItems();
   }, []);
 
-  const topRatedItems = items.filter(
-    (item) => item.attributes.category === "topRated"
-  );
+  const topRatedItems = items.filter((item) => item?.category === "topRated");
   const newArrivalItems = items.filter(
-    (item) => item.attributes.category === "newArrivals"
+    (item) => item?.category === "newArrivals"
   );
   const bestSellerItems = items.filter(
-    (item) => item.attributes.category === "bestSellers"
+    (item) => item?.category === "bestSellers"
   );
 
   return (
@@ -62,6 +60,31 @@ const ShoppingList = () => {
         <Tab label="BEST SELLERS" value={"bestSellers"} />
         <Tab label="TOP RATED" value={"topRated"} />
       </Tabs>
+      <Box
+        margin={"0 auto"}
+        display={"grid"}
+        gridTemplateColumns={"repeat(auto-fill, 300px)"}
+        justifyContent={"space-around"}
+        rowGap={"20px"}
+        columnGap={"1.33%"}
+      >
+        {value === "all" &&
+          items.map((item) => (
+            <Item item={item} key={`${item.name}-${item.id}`} />
+          ))}
+        {value === "newArrivals" &&
+          newArrivalItems.map((item) => (
+            <Item item={item} key={`${item.name}-${item.id}`} />
+          ))}
+        {value === "bestSellers" &&
+          bestSellerItems.map((item) => (
+            <Item item={item} key={`${item.name}-${item.id}`} />
+          ))}
+        {value === "topRated" &&
+          topRatedItems.map((item) => (
+            <Item item={item} key={`${item.name}-${item.id}`} />
+          ))}
+      </Box>
     </Box>
   );
 };

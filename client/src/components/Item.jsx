@@ -9,6 +9,16 @@ import { useNavigate } from "react-router-dom";
 import ItemDetails from "../scenes/itemDetails/ItemDetails";
 
 const Item = ({ item, width }) => {
+  // logging the entire item object
+  // console.log("Full item object: ", JSON.stringify(item, null, 2));
+
+  // Logging the specific paths to the attributes
+  console.log("item.attributes: ", item);
+  console.log("item.attributes?.category: ", item?.category);
+  console.log("item.attributes?.name: ", item?.name);
+  console.log("item.attributes?.price: ", item?.price);
+  console.log("item.attributes?.image: ", item?.image);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [count, setCount] = useState(1);
@@ -16,16 +26,24 @@ const Item = ({ item, width }) => {
   const {
     palette: { neutral },
   } = useTheme();
-  const { category, price, name, image } = item.attributes;
   const {
-    data: {
-      attributes: {
-        formats: {
-          medium: { url },
-        },
-      },
-    },
-  } = image;
+    category = "Uncategorized",
+    price = 0,
+    name = "Unnamed Item",
+    image,
+  } = item || {};
+
+  // const {
+  //   data: {
+  //     attributes: {
+  //       formats: {
+  //         medium: { url },
+  //       },
+  //     },
+  //   },
+  // } = image;
+
+  const imageUrl = image?.formats?.medium?.url;
 
   return (
     <Box width={width}>
@@ -35,7 +53,7 @@ const Item = ({ item, width }) => {
         onMouseOver={() => setIsHovered(true)}
       >
         <img
-          src={`http://localhost:1337${url}`}
+          src={`http://localhost:1337${imageUrl}`}
           alt={item.name}
           width={"300px"}
           height={"400px"}
@@ -43,7 +61,7 @@ const Item = ({ item, width }) => {
           style={{ cursor: "pointer" }}
         />
         <Box
-          display={isHovered ? "blocked" : "none"}
+          display={isHovered ? "block" : "none"}
           position={"absolute"}
           bottom={"10%"}
           left={"0"}
