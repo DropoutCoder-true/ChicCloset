@@ -9,16 +9,6 @@ import { useNavigate } from "react-router-dom";
 import ItemDetails from "../scenes/itemDetails/ItemDetails";
 
 const Item = ({ item, width }) => {
-  // logging the entire item object
-  // console.log("Full item object: ", JSON.stringify(item, null, 2));
-
-  // Logging the specific paths to the attributes
-  console.log("item.attributes: ", item);
-  console.log("item.attributes?.category: ", item?.category);
-  console.log("item.attributes?.name: ", item?.name);
-  console.log("item.attributes?.price: ", item?.price);
-  console.log("item.attributes?.image: ", item?.image);
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [count, setCount] = useState(1);
@@ -32,16 +22,6 @@ const Item = ({ item, width }) => {
     name = "Unnamed Item",
     image,
   } = item || {};
-
-  // const {
-  //   data: {
-  //     attributes: {
-  //       formats: {
-  //         medium: { url },
-  //       },
-  //     },
-  //   },
-  // } = image;
 
   const imageUrl = image?.formats?.medium?.url;
 
