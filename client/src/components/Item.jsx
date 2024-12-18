@@ -6,7 +6,6 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { shades } from "../theme";
 import { addToCart } from "../state";
 import { useNavigate } from "react-router-dom";
-import ItemDetails from "../scenes/itemDetails/ItemDetails";
 
 const Item = ({ item, width }) => {
   const navigate = useNavigate();
@@ -37,7 +36,7 @@ const Item = ({ item, width }) => {
           alt={item.name}
           width={"300px"}
           height={"400px"}
-          onClick={() => navigate(`/item/${item.id}`)}
+          onClick={() => navigate(`/item/${item.documentId}`)}
           style={{ cursor: "pointer" }}
         />
         <Box
