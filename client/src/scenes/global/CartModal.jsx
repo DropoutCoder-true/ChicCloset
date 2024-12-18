@@ -26,7 +26,7 @@ const CartMenu = () => {
   const isCartOpen = useSelector((state) => state.cart.isCartOpen);
 
   const totalPrice = cart.reduce((total, item) => {
-    return total + item.count * item.attributes.price;
+    return total + item.count * item.price;
   }, 0);
 
   return (
@@ -62,11 +62,11 @@ const CartMenu = () => {
           {/* Cart List */}
           <Box>
             {cart.map((item) => (
-              <Box key={`${item.attributes.name}-${item.id}`}>
+              <Box key={`${item.name}-${item.id}`}>
                 <FlexBox p="15px 0">
                   <Box flex={"1 1 40%"}>
                     <img
-                      src={`http://localhost:1337${item?.attributes?.image?.data?.attributes?.formats?.medium?.url}`}
+                      src={`http://localhost:1337${item?.image?.formats?.medium?.url}`}
                       alt={item?.name}
                       width={"123px"}
                       height={"164px"}
@@ -75,9 +75,7 @@ const CartMenu = () => {
                   <Box flex={"1 1 60%"}>
                     {/* Item Name */}
                     <FlexBox mb="5px">
-                      <Typography fontWeight={"bold"}>
-                        {item.attributes.name}
-                      </Typography>
+                      <Typography fontWeight={"bold"}>{item.name}</Typography>
                       <IconButton
                         onClick={() =>
                           dispatch(removeFromCart({ id: item.id }))
@@ -86,7 +84,11 @@ const CartMenu = () => {
                         <CloseIcon />
                       </IconButton>
                     </FlexBox>
-                    <Typography>{item.attributes.shortDescription}</Typography>
+                    {item?.shortDescription?.map((desc, index) => (
+                      <Typography key={index}>
+                        {desc?.children[0]?.text}
+                      </Typography>
+                    ))}
 
                     {/* Amount */}
                     <FlexBox m="15px 0">
@@ -113,9 +115,7 @@ const CartMenu = () => {
                       </Box>
 
                       {/* Price */}
-                      <Typography fontWeight={"bold"}>
-                        ${item.attributes.price}
-                      </Typography>
+                      <Typography fontWeight={"bold"}>${item.price}</Typography>
                     </FlexBox>
                   </Box>
                 </FlexBox>
