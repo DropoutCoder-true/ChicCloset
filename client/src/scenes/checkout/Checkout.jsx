@@ -4,8 +4,13 @@ import { Box, Button, Stepper, Step, StepLabel } from "@mui/material";
 import { Formik } from "formik";
 import * as yup from "yup";
 import { shades } from "../../theme";
-import usePagination from "@mui/material/usePagination/usePagination";
 import Shipping from "./Shipping";
+import Payment from "./Payment";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(
+  "pk_test_51QXOpeLGEWhT0c7wdT0iWREPoVsz1v9hyKI31W1eUT2gX0RD9yCZVVghaLwEaE1cF32R9dGzAaYlDH2EVocKMEja00XczxBbbm"
+);
 
 const initialValues = {
   billingAddress: {
@@ -90,11 +95,69 @@ const Checkout = () => {
   const isFirstStep = activeStep === 0;
   const isSecondStep = activeStep === 1;
 
-  const handleFormSubmit = async (value, actions) => {
+  const handleFormSubmit = async (values, actions) => {
     setActiveStep(activeStep + 1);
+
+    // Copy the billing address onto the shipping address
+    if (isFirstStep && values.shippingAddress.isSameAddress) {
+      actions.setFieldValue("shippingAddress", {
+        ...values.billingAddress,
+        isSameAddress: true,
+      });
+    }
+
+    if (isSecondStep) {
+      makePayment(values);
+    }
+
+    actions.setTouched({});
   };
 
-  async function makePayment(values) {}
+  async function makePayment(values) {
+    try {
+      const stripe = await stripePromise;
+      const requestBody = {
+        userName: [
+          values.billingAddress.firstName,
+          values.billingAddress.lastName,
+        ].join(" "),
+        email: values.email,
+        products: cart.map(({ documentId, count }) => ({ documentId, count })),
+      };
+
+      // Debug Log
+      console.log("Sending request with body: ", requestBody);
+      console.log("Products Array: ", requestBody.products);
+
+      const response = await fetch("http://localhost:1337/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
+
+      // Better error handling
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Server response: ", errorData);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const session = await response.json();
+
+      // Better session error handling
+      if (!session || !session.id) {
+        console.error("Invalid session data: ", session);
+        throw new Error("Invalid session data received from the server");
+      }
+
+      const result = await stripe.redirectToCheckout({ sessionId: session.id });
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+    } catch (error) {
+      console.error("Payment error: ", error);
+    }
+  }
 
   return (
     <Box width={"80%"} m={"100px auto"}>
@@ -132,6 +195,54 @@ const Checkout = () => {
                   setFieldValue={setFieldValue}
                 />
               )}
+              {isSecondStep && (
+                <Payment
+                  values={values}
+                  errors={errors}
+                  touched={touched}
+                  handleBlue={handleBlur}
+                  handleChange={handleChange}
+                  setFieldValue={setFieldValue}
+                />
+              )}
+              <Box
+                display={"flex"}
+                justifyContent={"space-between"}
+                gap={"50px"}
+              >
+                {isSecondStep && (
+                  <Button
+                    fullWidth
+                    color="primary"
+                    variant="contained"
+                    sx={{
+                      backgroundColor: shades.primary[200],
+                      boxShadow: "none",
+                      color: "white",
+                      borderRadius: 0,
+                      padding: "15px 40px",
+                    }}
+                    onClick={() => setActiveStep(activeStep - 1)}
+                  >
+                    Back
+                  </Button>
+                )}
+                <Button
+                  fullWidth
+                  type="submit"
+                  color="primary"
+                  variant="contained"
+                  sx={{
+                    backgroundColor: shades.primary[400],
+                    boxShadow: "none",
+                    color: "white",
+                    borderRadius: 0,
+                    padding: "15px 40px",
+                  }}
+                >
+                  {isFirstStep ? "Next" : "Place Order"}
+                </Button>
+              </Box>
             </form>
           )}
         </Formik>
